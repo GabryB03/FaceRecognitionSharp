@@ -9,10 +9,12 @@ namespace FaceRecognitionSharp
     {
         private static FrontalFaceDetector frontalFaceDetector = Dlib.GetFrontalFaceDetector();
         private static ShapePredictor shapePredictor = ShapePredictor.Deserialize(Resources.shapepredictor);
+        private static ShapePredictor landMarksPredictor = ShapePredictor.Deserialize(Resources.landmarks);
         private static DlibDotNet.Dnn.LossMetric lossMetric = DlibDotNet.Dnn.LossMetric.Deserialize(Resources.lossmetric);
         private static ProtoRandom.ProtoRandom random = new ProtoRandom.ProtoRandom(5);
         private static char[] _characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
         private static string tempDir = "";
+        private static bool initialized = false;
 
         private static string GenerateRandomFileName()
         {
@@ -131,6 +133,126 @@ namespace FaceRecognitionSharp
             return outputImage;
         }
 
+        public static void DrawLandmarksToFaces(string inputImagePath, string outputImagePath, RgbPixel rectColor, int borderThickness)
+        {
+            Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(inputImagePath);
+            Rectangle[] faces = frontalFaceDetector.Operator(img);
+
+            foreach (Rectangle face in faces)
+            {
+                FullObjectDetection shape = landMarksPredictor.Detect(img, face);
+
+                for (int i = 0; i < shape.Parts; i++)
+                {
+                    Point point = shape.GetPart((uint) i);
+                    Rectangle rect = new Rectangle(point);
+                    Dlib.DrawRectangle(img, rect, rectColor, (uint) borderThickness);
+                }
+            }
+
+            Dlib.SaveJpeg(img, outputImagePath);
+        }
+
+        public static void DrawLandmarksToFaces(System.Drawing.Image sourceImage, string outputImagePath, RgbPixel rectColor, int borderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            sourceImage.Save(fileName);
+            Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(fileName);
+            Rectangle[] faces = frontalFaceDetector.Operator(img);
+
+            foreach (Rectangle face in faces)
+            {
+                FullObjectDetection shape = landMarksPredictor.Detect(img, face);
+
+                for (int i = 0; i < shape.Parts; i++)
+                {
+                    Point point = shape.GetPart((uint)i);
+                    Rectangle rect = new Rectangle(point);
+                    Dlib.DrawRectangle(img, rect, rectColor, (uint)borderThickness);
+                }
+            }
+
+            Dlib.SaveJpeg(img, outputImagePath);
+        }
+
+        public static System.Drawing.Image DrawLandmarksToFaces(string inputImagePath, RgbPixel rectColor, int borderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            DrawLandmarksToFaces(inputImagePath, fileName, rectColor, borderThickness);
+            System.Drawing.Image outputImage = System.Drawing.Image.FromFile(fileName);
+            return outputImage;
+        }
+
+        public static System.Drawing.Image DrawLandmarksToFaces(System.Drawing.Image sourceImage, RgbPixel rectColor, int borderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            DrawLandmarksToFaces(sourceImage, fileName, rectColor, borderThickness);
+            System.Drawing.Image outputImage = System.Drawing.Image.FromFile(fileName);
+            return outputImage;
+        }
+
+        public static void DrawRectsAndLandmarksToFaces(string inputImagePath, string outputImagePath, RgbPixel faceRectColor, int faceRectBorderThickness, RgbPixel faceLandmarkColor, int faceLandmarkBorderThickness)
+        {
+            Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(inputImagePath);
+            Rectangle[] faces = frontalFaceDetector.Operator(img);
+
+            foreach (Rectangle face in faces)
+            {
+                FullObjectDetection shape = landMarksPredictor.Detect(img, face);
+
+                for (int i = 0; i < shape.Parts; i++)
+                {
+                    Point point = shape.GetPart((uint)i);
+                    Rectangle rect = new Rectangle(point);
+                    Dlib.DrawRectangle(img, rect, faceLandmarkColor, (uint)faceLandmarkBorderThickness);
+                }
+
+                Dlib.DrawRectangle(img, face, color: faceRectColor, thickness: (uint)faceRectBorderThickness);
+            }
+
+            Dlib.SaveJpeg(img, outputImagePath);
+        }
+
+        public static void DrawRectsAndLandmarksToFaces(System.Drawing.Image sourceImage, string outputImagePath, RgbPixel faceRectColor, int faceRectBorderThickness, RgbPixel faceLandmarkColor, int faceLandmarkBorderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            sourceImage.Save(fileName);
+            Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(fileName);
+            Rectangle[] faces = frontalFaceDetector.Operator(img);
+
+            foreach (Rectangle face in faces)
+            {
+                FullObjectDetection shape = landMarksPredictor.Detect(img, face);
+
+                for (int i = 0; i < shape.Parts; i++)
+                {
+                    Point point = shape.GetPart((uint)i);
+                    Rectangle rect = new Rectangle(point);
+                    Dlib.DrawRectangle(img, rect, faceLandmarkColor, (uint)faceLandmarkBorderThickness);
+                }
+
+                Dlib.DrawRectangle(img, face, color: faceRectColor, thickness: (uint)faceRectBorderThickness);
+            }
+
+            Dlib.SaveJpeg(img, outputImagePath);
+        }
+
+        public static System.Drawing.Image DrawRectsAndLandmarksToFaces(string inputImagePath, RgbPixel faceRectColor, int faceRectBorderThickness, RgbPixel faceLandmarkColor, int faceLandmarkBorderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            DrawRectsAndLandmarksToFaces(inputImagePath, fileName, faceRectColor, faceRectBorderThickness, faceLandmarkColor, faceLandmarkBorderThickness);
+            System.Drawing.Image outputImage = System.Drawing.Image.FromFile(fileName);
+            return outputImage;
+        }
+
+        public static System.Drawing.Image DrawRectsAndLandmarksToFaces(System.Drawing.Image sourceImage, RgbPixel faceRectColor, int faceRectBorderThickness, RgbPixel faceLandmarkColor, int faceLandmarkBorderThickness)
+        {
+            string fileName = GenerateRandomFileName();
+            DrawRectsAndLandmarksToFaces(sourceImage, fileName, faceRectColor, faceRectBorderThickness, faceLandmarkColor, faceLandmarkBorderThickness);
+            System.Drawing.Image outputImage = System.Drawing.Image.FromFile(fileName);
+            return outputImage;
+        }
+
         public static bool IsFacePresent(string inputImagePath)
         {
             try
@@ -210,6 +332,11 @@ namespace FaceRecognitionSharp
 
         public static void Initialize()
         {
+            if (initialized)
+            {
+                return;
+            }
+
             string path = GetTempDirectory() + random.GetRandomString(_characters, random.GetRandomInt32(32, 64)) + ".png";
             Resources.faces.Save(path);
             Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(path);
@@ -218,6 +345,7 @@ namespace FaceRecognitionSharp
             foreach (Rectangle face in frontalFaceDetector.Operator(img))
             {
                 FullObjectDetection shape = shapePredictor.Detect(img, face);
+                FullObjectDetection otherShape = landMarksPredictor.Detect(img, face);
                 ChipDetails faceChipDetail = Dlib.GetFaceChipDetails(shape, 150, 0.25);
                 Array2D<RgbPixel> faceChip = Dlib.ExtractImageChip<RgbPixel>(img, faceChipDetail);
                 Matrix<RgbPixel> matrix = new Matrix<RgbPixel>(faceChip);
@@ -241,6 +369,7 @@ namespace FaceRecognitionSharp
             uint clusters = 0;
             uint[] labels = new uint[] { };
             Dlib.ChineseWhispers(edges, 100, out clusters, out labels);
+            initialized = true;
         }
 
         public static bool CompareFaces(params string[] paths)
