@@ -73,6 +73,16 @@ namespace FaceRecognitionSharp.Properties {
         /// <summary>
         ///   Cerca una risorsa localizzata di tipo System.Byte[].
         /// </summary>
+        internal static byte[] landmarks {
+            get {
+                object obj = ResourceManager.GetObject("landmarks", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una risorsa localizzata di tipo System.Byte[].
+        /// </summary>
         internal static byte[] lossmetric {
             get {
                 object obj = ResourceManager.GetObject("lossmetric", resourceCulture);

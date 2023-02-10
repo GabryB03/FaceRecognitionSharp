@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\faces.png" />
+    <None Include="Resources\landmarks.dat" />
     <None Include="Resources\lossmetric.dat" />
     <None Include="Resources\shapepredictor.dat" />
   </ItemGroup>
@@ -58,13 +58,16 @@
       <HintPath>packages\DlibDotNet.CUDA112.19.21.0.20220724\lib\netstandard2.0\DlibDotNet.dll</HintPath>
     </Reference>
     <Reference Include="ProtoRandom">
-      <HintPath>..\..\Computer\Generali\Utili\ProtoRandom.dll</HintPath>
+      <HintPath>..\..\..\..\..\Generali\Utili\ProtoRandom.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Drawing.Common.5.0.1\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\faces.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
