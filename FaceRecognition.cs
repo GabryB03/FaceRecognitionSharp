@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using FaceRecognitionSharp.Properties;
+using System.IO;
 
 namespace FaceRecognitionSharp
 {
@@ -414,6 +415,114 @@ namespace FaceRecognitionSharp
             catch
             {
                 return false;
+            }
+        }
+
+        public static float FaceDistance(string facePath1, string facePath2)
+        {
+            try
+            {
+                List<Matrix<RgbPixel>> chips = new List<Matrix<RgbPixel>>();
+
+                {
+                    Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(facePath1);
+
+                    foreach (Rectangle face in frontalFaceDetector.Operator(img))
+                    {
+                        FullObjectDetection shape = shapePredictor.Detect(img, face);
+                        ChipDetails faceChipDetail = Dlib.GetFaceChipDetails(shape, 150, 0.25);
+                        Array2D<RgbPixel> faceChip = Dlib.ExtractImageChip<RgbPixel>(img, faceChipDetail);
+                        Matrix<RgbPixel> matrix = new Matrix<RgbPixel>(faceChip);
+                        chips.Add(matrix);
+                    }
+                }
+
+                {
+                    Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(facePath2);
+
+                    foreach (Rectangle face in frontalFaceDetector.Operator(img))
+                    {
+                        FullObjectDetection shape = shapePredictor.Detect(img, face);
+                        ChipDetails faceChipDetail = Dlib.GetFaceChipDetails(shape, 150, 0.25);
+                        Array2D<RgbPixel> faceChip = Dlib.ExtractImageChip<RgbPixel>(img, faceChipDetail);
+                        Matrix<RgbPixel> matrix = new Matrix<RgbPixel>(faceChip);
+                        chips.Add(matrix);
+                    }
+                }
+
+                DlibDotNet.Dnn.OutputLabels<Matrix<float>> descriptors = lossMetric.Operator(chips);
+                List<SamplePair> edges = new List<SamplePair>();
+
+                for (uint i = 0; i < descriptors.Count; ++i)
+                {
+                    for (var j = i; j < descriptors.Count; ++j)
+                    {
+                        return Dlib.Length(descriptors[i] - descriptors[j]);
+                    }
+                }
+
+                return 0.0F;
+            }
+            catch
+            {
+                return 0.0F;
+            }
+        }
+
+        public static float FaceDistance(System.Drawing.Image faceImage1, System.Drawing.Image faceImage2)
+        {
+            try
+            {
+                List<Matrix<RgbPixel>> chips = new List<Matrix<RgbPixel>>();
+
+                {
+                    string fileName = GenerateRandomFileName();
+                    faceImage1.Save(fileName);
+                    Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(fileName);
+                    File.Delete(fileName);
+
+                    foreach (Rectangle face in frontalFaceDetector.Operator(img))
+                    {
+                        FullObjectDetection shape = shapePredictor.Detect(img, face);
+                        ChipDetails faceChipDetail = Dlib.GetFaceChipDetails(shape, 150, 0.25);
+                        Array2D<RgbPixel> faceChip = Dlib.ExtractImageChip<RgbPixel>(img, faceChipDetail);
+                        Matrix<RgbPixel> matrix = new Matrix<RgbPixel>(faceChip);
+                        chips.Add(matrix);
+                    }
+                }
+
+                {
+                    string fileName = GenerateRandomFileName();
+                    faceImage1.Save(fileName);
+                    Array2D<RgbPixel> img = Dlib.LoadImage<RgbPixel>(fileName);
+                    File.Delete(fileName);
+
+                    foreach (Rectangle face in frontalFaceDetector.Operator(img))
+                    {
+                        FullObjectDetection shape = shapePredictor.Detect(img, face);
+                        ChipDetails faceChipDetail = Dlib.GetFaceChipDetails(shape, 150, 0.25);
+                        Array2D<RgbPixel> faceChip = Dlib.ExtractImageChip<RgbPixel>(img, faceChipDetail);
+                        Matrix<RgbPixel> matrix = new Matrix<RgbPixel>(faceChip);
+                        chips.Add(matrix);
+                    }
+                }
+
+                DlibDotNet.Dnn.OutputLabels<Matrix<float>> descriptors = lossMetric.Operator(chips);
+                List<SamplePair> edges = new List<SamplePair>();
+
+                for (uint i = 0; i < descriptors.Count; ++i)
+                {
+                    for (var j = i; j < descriptors.Count; ++j)
+                    {
+                        return Dlib.Length(descriptors[i] - descriptors[j]);
+                    }
+                }
+
+                return 0.0F;
+            }
+            catch
+            {
+                return 0.0F;
             }
         }
 
